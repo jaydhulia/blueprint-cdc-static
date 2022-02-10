@@ -24126,7 +24126,7 @@ var SceneGraph = function (_React$Component) {
 
     _this.renderEntities = function () {
       return _this.state.filteredEntities.map(function (entityOption, idx) {
-        if (!_this.isVisibleInSceneGraph(entityOption.entity) && !_this.state.filter) {
+        if (!_this.isVisibleInSceneGraph(entityOption.entity) && !_this.state.filter || !entityOption.entity.id.endsWith("-obj") && !entityOption.entity.id.includes("@") && !entityOption.entity.id.endsWith("-background")) {
           return null;
         }
         return _react2.default.createElement(_Entity2.default, _extends({}, entityOption, {
