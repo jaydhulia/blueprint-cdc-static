@@ -22445,7 +22445,7 @@ var GltfPopUp = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var frontendSceneUrl = "http://localhost:3000/admin/scene/";
+      var frontendSceneUrl = "https://interactive-admin.calgaryconnecteen.com/admin/scene/";
       var iframeLink = frontendSceneUrl + this.props.sceneId + "/object/" + this.props.objectId;
 
       return _react2.default.createElement(
@@ -22619,10 +22619,10 @@ var Component = function (_React$Component2) {
   _createClass(Component, [{
     key: 'setObjects',
     value: function setObjects(self) {
-      var baseUrl = "http://localhost:8888/";
+      var baseUrl = "https://interactive.calgaryconnecteen.com/";
       var baseEndpoint = "api/admin/v1/";
       var getUrl = baseUrl + baseEndpoint + "assets";
-      var assetsUrl = "http://localhost:8888/static/";
+      var assetsUrl = "https://d2pfugr306exr.cloudfront.net/";
       var apiEndpointScene = AFRAME.scenes[0].getAttribute("id").replace("-scene", "");
 
       _axios2.default.get(getUrl, {
@@ -24435,7 +24435,7 @@ var TransformToolbar = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (TransformToolbar.__proto__ || Object.getPrototypeOf(TransformToolbar)).call(this, props));
 
     _this.writeChanges = async function () {
-      var baseUrl = "http://localhost:8888/";
+      var baseUrl = "https://interactive.calgaryconnecteen.com/";
       var apiEndpointScene = AFRAME.scenes[0].getAttribute("id").replace("-scene", "");
       var baseEndpoint = "api/admin/v1/";
       var getUrl = baseUrl + baseEndpoint + "scene/" + apiEndpointScene;
@@ -24684,10 +24684,10 @@ var TransformToolbar = function (_React$Component) {
   _createClass(TransformToolbar, [{
     key: 'getRequests',
     value: function getRequests(self) {
-      var baseUrl = "http://localhost:8888/";
+      var baseUrl = "https://interactive.calgaryconnecteen.com/";
       var apiEndpointScene = AFRAME.scenes[0].getAttribute("id").replace("-scene", "");
       var baseEndpoint = "api/admin/v1/";
-      var assetsUrl = "http://localhost:8888/static/";
+      var assetsUrl = "https://d2pfugr306exr.cloudfront.net/";
 
       var getUrl = baseUrl + baseEndpoint + "scene/" + apiEndpointScene;
       _axios2.default.get(getUrl, {
