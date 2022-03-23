@@ -2306,9 +2306,14 @@ function printEntity(entity, onDoubleClick) {
  * @return {Element} Entity created
  */
 function createEntity(definition, cb) {
+  var re = /^[\:\(\)\'\?\!\.\",a-zA-Z0-9 _-]{1,50}$/;
   var objName = "";
   while (objName == "") {
     objName = prompt("Enter the name of the object");
+    if (!re.test(objName)) {
+      alert("Please enter a name with only alphanumeric, space, underscore, or dash characters only");
+      objName = "";
+    }
   }
 
   if (objName != null) {
@@ -13748,7 +13753,7 @@ exports.default = Modal;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.editBackground = exports.deleteObject = exports.addObject = exports.updateObject = undefined;
+exports.deleteObject = exports.addObject = exports.updateObject = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -13813,28 +13818,29 @@ function slugify(text) {
 }
 
 var updateObject = exports.updateObject = async function updateObject(putUrl, object, objectId) {
-  _axios2.default.put(putUrl, object, {
+  var response = await _axios2.default.put(putUrl, object, {
     headers: {
       "Content-Type": "application/json",
       "X-Xsrftoken": getCookie("_xsrf")
     }, withCredentials: true
   }).then(function (response) {
-    alert("Updated object with id: " + objectId);
+    return "" + objectId;
   }).catch(function (error) {
     if (error.response) {
-      alert("URL: " + putUrl + "\nTitle: " + error.response.data.title + "\nMessage: " + error.response.data.message);
+      return "Error: " + error.response.data.message;
     } else if (error.request) {
-      alert("No response from URL: " + putUrl);
+      return "Error: " + "No response from URL: " + putUrl;
     } else {
-      alert(error.message);
+      return "Error: " + error.message;
     }
   });
+  return response;
 };
 
 var addObject = exports.addObject = async function addObject(postUrl, object, refToToolbar) {
   var objId = object.obj;
   delete object.obj;
-  _axios2.default.post(postUrl, object, {
+  var response = await _axios2.default.post(postUrl, object, {
     headers: {
       "Content-Type": "application/json",
       "X-Xsrftoken": getCookie("_xsrf")
@@ -13845,64 +13851,67 @@ var addObject = exports.addObject = async function addObject(postUrl, object, re
     object["id"] = newObjectId;
     objects.push(object);
     refToToolbar.setState({ objects: objects });
-    alert("Added new object with name: " + object.name + ", id: " + newObjectId);
     var entity = document.getElementById(objId);
     entity.id = newObjectId + "-obj";
     _Events2.default.emit('entityidchange', entity);
+    return "" + newObjectId;
   }).catch(function (error) {
     if (error.response) {
-      alert("URL: " + postUrl + "\nTitle: " + error.response.data.title + "\nMessage: " + error.response.data.message);
+      return "Error: " + error.response.data.message;
     } else if (error.request) {
-      alert("No response from URL: " + postUrl);
+      return "Error: " + "No response from URL: " + postUrl;
     } else {
-      alert(error.message);
+      return "Error: " + error.message;
     }
   });
+  return response;
 };
 
 var deleteObject = exports.deleteObject = async function deleteObject(deleteUrl, objectId) {
-  _axios2.default.delete(deleteUrl, {
+  var response = await _axios2.default.delete(deleteUrl, {
     headers: {
       "Content-Type": "application/json",
       "X-Xsrftoken": getCookie("_xsrf")
     }, withCredentials: true
   }).then(function (response) {
-    alert("Deleted object with id: " + objectId);
+    return "" + objectId;
   }).catch(function (error) {
     if (error.response) {
-      alert("URL: " + deleteUrl + "\nTitle: " + error.response.data.title + "\nMessage: " + error.response.data.message);
+      return "Error: " + error.response.data.message;
     } else if (error.request) {
-      alert("No response from URL: " + deleteUrl);
+      return "Error: " + "No response from URL: " + deleteUrl;
     } else {
-      alert(error.message);
+      return "Error: " + error.message;
     }
   });
+  return response;
 };
 
-var editBackground = exports.editBackground = async function editBackground(sceneUrl, sceneBody) {
-  var backgroundModelChanged = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-  _axios2.default.put(sceneUrl, sceneBody, {
-    headers: {
-      "Content-Type": "application/json",
-      "X-Xsrftoken": getCookie("_xsrf")
-    }, withCredentials: true
-  }).then(function (response) {
-    alert("Changes to the background were saved");
-    // if background model changed, also need to update screenshot
-    if (backgroundModelChanged) {
-      window.takeSceneScreenshot(response.data.s3_key);
-    }
-  }).catch(function (error) {
-    if (error.response) {
-      alert("URL: " + sceneUrl + "\nTitle: " + error.response.data.title + "\nMessage: " + error.response.data.message);
-    } else if (error.request) {
-      alert("No response from URL: " + sceneUrl);
-    } else {
-      alert(error.message);
-    }
-  });
-};
+// export const editBackground = async(sceneUrl, sceneBody, backgroundModelChanged=false) => {
+//   const response = await axios.put(sceneUrl, sceneBody, {
+//     headers: {
+//         "Content-Type": "application/json",
+//         "X-Xsrftoken": getCookie("_xsrf"),
+//       }, withCredentials: true
+//     })
+//   .then(function (response) {
+//     // if background model changed, also need to update screenshot
+//     if(backgroundModelChanged){
+//       window.takeSceneScreenshot(response.data.s3_key);
+//     }
+//     return "Changes to the background were saved";
+//   })
+//   .catch((error) => {
+//     if (error.response){
+//       return "Error: " + error.response.data.message;
+//     } else if (error.request){
+//       return "Error: " + "No response from URL: " + sceneUrl;
+//     } else{
+//       return "Error: " + error.message;
+//     }
+//   });
+//   return response;
+// }
 
 /**
  * Tools and actions.
@@ -22436,7 +22445,7 @@ var GltfPopUp = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var frontendSceneUrl = "https://interactive-admin.calgaryconnecteen.com/admin/scene/";
+      var frontendSceneUrl = "http://localhost:3000/admin/scene/";
       var iframeLink = frontendSceneUrl + this.props.sceneId + "/object/" + this.props.objectId;
 
       return _react2.default.createElement(
@@ -22610,10 +22619,10 @@ var Component = function (_React$Component2) {
   _createClass(Component, [{
     key: 'setObjects',
     value: function setObjects(self) {
-      var baseUrl = "https://interactive.calgaryconnecteen.com/";
+      var baseUrl = "http://localhost:8888/";
       var baseEndpoint = "api/admin/v1/";
       var getUrl = baseUrl + baseEndpoint + "assets";
-      var assetsUrl = "https://d2pfugr306exr.cloudfront.net/";
+      var assetsUrl = "http://localhost:8888/static/";
       var apiEndpointScene = AFRAME.scenes[0].getAttribute("id").replace("-scene", "");
 
       _axios2.default.get(getUrl, {
@@ -24126,7 +24135,7 @@ var SceneGraph = function (_React$Component) {
 
     _this.renderEntities = function () {
       return _this.state.filteredEntities.map(function (entityOption, idx) {
-        if (!_this.isVisibleInSceneGraph(entityOption.entity) && !_this.state.filter || !entityOption.entity.id.endsWith("-obj") && !entityOption.entity.id.includes("@") && !entityOption.entity.id.endsWith("-background")) {
+        if (!_this.isVisibleInSceneGraph(entityOption.entity) && !_this.state.filter || !entityOption.entity.id.endsWith("-obj") && !entityOption.entity.id.includes("@")) {
           return null;
         }
         return _react2.default.createElement(_Entity2.default, _extends({}, entityOption, {
@@ -24413,6 +24422,7 @@ var React = __webpack_require__(1);
 var Events = __webpack_require__(5);
 var classNames = __webpack_require__(15);
 
+// import {updateObject, addObject, deleteObject, editBackground} from '../scenegraph/Toolbar.js';
 
 var TransformButtons = [{ value: 'translate', icon: 'fa-arrows-alt' }, { value: 'scale', icon: 'fa-expand' }, { value: 'rotate', icon: 'fa-repeat' }];
 
@@ -24424,55 +24434,74 @@ var TransformToolbar = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (TransformToolbar.__proto__ || Object.getPrototypeOf(TransformToolbar)).call(this, props));
 
-    _this.writeChanges = function () {
-      var baseUrl = "https://interactive.calgaryconnecteen.com/";
+    _this.writeChanges = async function () {
+      var baseUrl = "http://localhost:8888/";
       var apiEndpointScene = AFRAME.scenes[0].getAttribute("id").replace("-scene", "");
       var baseEndpoint = "api/admin/v1/";
       var getUrl = baseUrl + baseEndpoint + "scene/" + apiEndpointScene;
       var objects = _this.state.objects;
       var objectChanges = [];
 
+      if (AFRAME.INSPECTOR.history.updates && Object.keys(AFRAME.INSPECTOR.history.updates).length === 0 && Object.getPrototypeOf(AFRAME.INSPECTOR.history.updates) === Object.prototype) {
+        var _msg = "No changes made";
+        _this.setState({ msg: _msg });
+        setTimeout(_this.clearMsg, 10000);
+        return;
+      }
       // validation of changes
       for (var id in AFRAME.INSPECTOR.history.updates) {
         if (id.includes("@")) {
           if (!("gltf-model" in AFRAME.INSPECTOR.history.updates[id]) || AFRAME.INSPECTOR.history.updates[id]['gltf-model'] == "") {
-            alert("Error: Save failed, Please provide gltf-model for object with name: " + id + "\nNo changes were made, please fix errors before saving");
+            var _msg2 = "Error: Save failed, please select an asset for the new object(s)";
+            alert(_msg2);
             return;
           }
         }
       }
 
+      var hasFail = false;
+      var addedObjects = [];
+      var deletedObjects = [];
+
       // perform changes / add changes to objectChanges object
       for (var id in AFRAME.INSPECTOR.history.updates) {
-        if (id.endsWith("-background")) {
-          var sceneBody = _this.state.sceneBody;
-          var hasChanged = false;
-          var backgroundModelChanged = false;
-          var changes = AFRAME.INSPECTOR.history.updates[id];
-          for (var prop in changes) {
-            if (prop == "position" || prop == "scale" || prop == "rotation") {
-              var newPropArr = changes[prop].split(" ").map(Number);
-              if (JSON.stringify(sceneBody[prop]) != JSON.stringify(newPropArr)) {
-                hasChanged = true;
-                sceneBody[prop] = newPropArr;
-              }
-            } else if (prop == "gltf-model") {
-              var newAssetId = _this.state.linkToIdMap[changes[prop]];
-              if (sceneBody["background_id"] != newAssetId) {
-                hasChanged = true;
-                backgroundModelChanged = true;
-                sceneBody["background_id"] = newAssetId;
-              }
-            }
-          }
-          if (hasChanged) {
-            _this.setState({ sceneBody: sceneBody });
-            (0, _Toolbar.editBackground)(getUrl, sceneBody, backgroundModelChanged);
-          }
-        } else if (id.endsWith("-obj")) {
+        // if (id.endsWith("-background")){
+        //   let sceneBody = this.state.sceneBody;
+        //   let hasChanged = false;
+        //   let backgroundModelChanged = false;
+        //   const changes = AFRAME.INSPECTOR.history.updates[id];
+        //   for (const prop in changes){
+        //     if (prop == "position" || prop == "scale" || prop == "rotation"){
+        //       const newPropArr = changes[prop].split(" ").map(Number);
+        //       if (JSON.stringify(sceneBody[prop]) != JSON.stringify(newPropArr)){
+        //         hasChanged = true;
+        //         sceneBody[prop] = newPropArr;
+        //       }
+        //     } else if (prop == "gltf-model"){
+        //       const newAssetId = this.state.linkToIdMap[changes[prop]];
+        //       if (sceneBody["background_id"] != newAssetId){
+        //         hasChanged = true;
+        //         backgroundModelChanged = true;
+        //         sceneBody["background_id"] = newAssetId;
+        //       }
+        //     }
+        //   }
+        //   if (hasChanged){
+        //     this.setState({ sceneBody });
+        //     let msg = await editBackground(getUrl, sceneBody, backgroundModelChanged);
+        //     this.setState({ msg });
+        //   }
+        // } else
+        if (id.endsWith("-obj")) {
           if ("delete" in AFRAME.INSPECTOR.history.updates[id]) {
             var deleteUrl = baseUrl + baseEndpoint + "scene/" + apiEndpointScene + "/object/" + id.replace("-obj", "");
-            (0, _Toolbar.deleteObject)(deleteUrl, id.replace("-obj", ""));
+            var _msg3 = await (0, _Toolbar.deleteObject)(deleteUrl, id.replace("-obj", ""));
+            if (!_msg3.startsWith("Error: ")) {
+              deletedObjects.push(_msg3);
+            } else {
+              hasFail = true;
+              _this.setState({ msg: _msg3 });
+            }
           } else {
             objectChanges.push([parseInt(id.replace("-obj", "")), AFRAME.INSPECTOR.history.updates[id]]);
           }
@@ -24494,16 +24523,22 @@ var TransformToolbar = function (_React$Component) {
             "is_interactable": false
           };
           var curChanges = AFRAME.INSPECTOR.history.updates[id];
-          for (var _prop in curChanges) {
-            if (_prop == "position" || _prop == "scale" || _prop == "rotation") {
-              basicObject[_prop] = curChanges[_prop].split(" ").map(Number);
-            } else if (_prop == "gltf-model") {
-              basicObject["asset_id"] = _this.state.linkToIdMap[curChanges[_prop]];
+          for (var prop in curChanges) {
+            if (prop == "position" || prop == "scale" || prop == "rotation") {
+              basicObject[prop] = curChanges[prop].split(" ").map(Number);
+            } else if (prop == "gltf-model") {
+              basicObject["asset_id"] = _this.state.linkToIdMap[curChanges[prop]];
             }
           }
           var postUrl = getUrl + "/object";
           basicObject.obj = id;
-          (0, _Toolbar.addObject)(postUrl, basicObject, _this);
+          var _msg4 = await (0, _Toolbar.addObject)(postUrl, basicObject, _this);
+          if (!_msg4.startsWith("Error: ")) {
+            addedObjects.push(_msg4);
+          } else {
+            hasFail = true;
+            _this.setState({ msg: _msg4 });
+          }
           // here is where we want to create a new object
           // first strip the name's suffix (<>-!) - make sure to save the suffix
           // POST request to backend - this endpoint returns the entire object JSON
@@ -24527,38 +24562,76 @@ var TransformToolbar = function (_React$Component) {
 
       var i = 0;
       var j = 0;
+      var updatedObjects = [];
       while (i < objects.length && j < objectChanges.length) {
         if (objects[i].id == objectChanges[j][0]) {
-          var _hasChanged = false;
+          var hasChanged = false;
           var _curChanges = objectChanges[j][1];
-          for (var _prop2 in _curChanges) {
-            if (_prop2 == "position" || _prop2 == "scale" || _prop2 == "rotation") {
-              var _newPropArr = _curChanges[_prop2].split(" ").map(Number);
-              if (JSON.stringify(objects[i][_prop2]) != JSON.stringify(_newPropArr)) {
-                _hasChanged = true;
-                objects[i][_prop2] = _newPropArr;
+          for (var _prop in _curChanges) {
+            if (_prop == "position" || _prop == "scale" || _prop == "rotation") {
+              var newPropArr = _curChanges[_prop].split(" ").map(Number);
+              if (JSON.stringify(objects[i][_prop]) != JSON.stringify(newPropArr)) {
+                hasChanged = true;
+                objects[i][_prop] = newPropArr;
               }
-            } else if (_prop2 == "gltf-model") {
-              var _newAssetId = _this.state.linkToIdMap[_curChanges[_prop2]];
-              if (objects[i]["asset_id"] != _newAssetId) {
-                _hasChanged = true;
-                objects[i]["asset_id"] = _newAssetId;
+            } else if (_prop == "gltf-model") {
+              var newAssetId = _this.state.linkToIdMap[_curChanges[_prop]];
+              if (objects[i]["asset_id"] != newAssetId) {
+                hasChanged = true;
+                objects[i]["asset_id"] = newAssetId;
               }
             }
           }
-          if (_hasChanged) {
+          if (hasChanged) {
             var putUrl = getUrl + "/object/" + objects[i].id;
             var curId = objects[i].id;
             delete objects[i].id;
             delete objects[i].asset_details;
-            (0, _Toolbar.updateObject)(putUrl, objects[i], curId);
+            var _msg5 = await (0, _Toolbar.updateObject)(putUrl, objects[i], curId);
+            if (!_msg5.startsWith("Error: ")) {
+              updatedObjects.push(_msg5);
+            } else {
+              hasFail = true;
+              _this.setState({ msg: _msg5 });
+            }
             objects[i].id = curId;
           }
           j++;
         }
         i++;
       }
+      var msg1 = "";
+      var msg2 = "";
+      var msg3 = "";
+      if (!hasFail && addedObjects.length > 0) {
+        msg1 = "added " + addedObjects.toString();
+      }
+      if (!hasFail && updatedObjects.length > 0) {
+        msg2 = "updated " + updatedObjects.toString();
+      }
+      if (!hasFail && deletedObjects.length > 0) {
+        msg3 = "deleted " + deletedObjects.toString();
+      }
+      var msg = msg1;
+      if (msg != "" && msg2 != "") {
+        msg += ", ";
+      }
+      msg += msg2;
+      if (msg != "" && msg3 != "") {
+        msg += ", ";
+      }
+      msg += msg3;
+      if (!hasFail && msg != "") {
+        msg = "Object ID changes: " + msg;
+        _this.setState({ msg: msg });
+      }
       _this.setState({ objects: objects });
+      setTimeout(_this.clearMsg, 10000);
+    };
+
+    _this.clearMsg = function () {
+      var msg = "";
+      _this.setState({ msg: msg });
     };
 
     _this.changeTransformMode = function (mode) {
@@ -24597,7 +24670,12 @@ var TransformToolbar = function (_React$Component) {
       localSpace: false,
       objects: [],
       linkToIdMap: null,
-      sceneBody: null
+      sceneBody: null,
+      showSuccess: false,
+      successText: "",
+      showError: false,
+      errorText: "",
+      msg: ""
     };
     _this.getRequests(_this);
     return _this;
@@ -24606,10 +24684,10 @@ var TransformToolbar = function (_React$Component) {
   _createClass(TransformToolbar, [{
     key: 'getRequests',
     value: function getRequests(self) {
-      var baseUrl = "https://interactive.calgaryconnecteen.com/";
+      var baseUrl = "http://localhost:8888/";
       var apiEndpointScene = AFRAME.scenes[0].getAttribute("id").replace("-scene", "");
       var baseEndpoint = "api/admin/v1/";
-      var assetsUrl = "https://d2pfugr306exr.cloudfront.net/";
+      var assetsUrl = "http://localhost:8888/static/";
 
       var getUrl = baseUrl + baseEndpoint + "scene/" + apiEndpointScene;
       _axios2.default.get(getUrl, {
@@ -24676,15 +24754,29 @@ var TransformToolbar = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
+      var _this3 = this;
+
       var watcherClassNames = (0, _classnames2.default)({
         button: true,
         fa: true,
         'fa-save': true
       });
       var watcherTitle = 'Write changes with aframe-watcher.';
+      var handleSuccessClose = function handleSuccessClose(event, reason) {
+        if (reason === 'clickaway') {
+          return;
+        }
+
+        _this3.setState({ showSuccess: false });
+      };
       return React.createElement(
         'div',
-        { id: 'transformToolbar', className: 'toolbarButtons', style: { width: "250px" } },
+        { id: 'transformToolbar', className: 'toolbarButtons', style: { width: "fit-content", marginRight: "150px" } },
+        React.createElement(
+          'span',
+          { id: 'modifyThis' },
+          this.state.msg
+        ),
         this.renderTransformButtons(),
         React.createElement(
           'button',
@@ -24697,26 +24789,6 @@ var TransformToolbar = function (_React$Component) {
               background: "#EC4E55",
               borderRadius: "4px" } },
           'Save Scene'
-        ),
-        React.createElement(
-          'span',
-          { className: 'local-transform' },
-          React.createElement('input', {
-            id: 'local',
-            type: 'checkbox',
-            title: 'Toggle between local and world space transforms',
-            checked: this.state.localSpace || this.state.selectedTransform === 'scale',
-            disabled: this.state.selectedTransform === 'scale',
-            onChange: this.onLocalChange
-          }),
-          React.createElement(
-            'label',
-            {
-              htmlFor: 'local',
-              title: 'Toggle between local and world space transforms'
-            },
-            'local'
-          )
         )
       );
     }
